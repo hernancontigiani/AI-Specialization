@@ -25,8 +25,6 @@ with open(cls.WORD_TO_VEC_MODEL_TXT_PATH, encoding="utf8") as words_embeddings_t
     embeddings = np.fromiter(embeddings_gen, structure)
 '''
 
-# https://cmdlinetips.com/2020/03/linear-regression-using-matrix-multiplication-in-python-using-numpy/
-
 class Data(object):
 
     def __init__(self, path):
