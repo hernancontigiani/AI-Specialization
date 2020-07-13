@@ -181,7 +181,6 @@ if __name__ == '__main__':
     # plt.hist(dt_exp)
     # plt.show()
 
-
     # Reducir a 2 dimensiones y plotear
     dt2 = pca(dt, 2)
 
