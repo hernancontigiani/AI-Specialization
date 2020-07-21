@@ -5,13 +5,12 @@
 4. Regresion lineal con b
 5. Prediccion
 6. Graficos
-7. ECM --> MCE
+7. ECM --> MCE+
 '''
 
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
-
 from sklearn.metrics import mean_squared_error
 
 '''
@@ -36,6 +35,12 @@ class Data(object):
         data = data[1:,1:]
         return data
         # np.fromiter
+
+    def shape(self):
+        return self.dataset.shape
+
+    def add(self, offset):
+        self.dataset += offset
 
     def split(self, percentage):
         # retornar train y test segun el %
@@ -82,7 +87,7 @@ class LinearRegresion(BaseModel):
 
     def predict(self, X):
         # usar el modelo (self.model) y predecir
-        # y hat a partir de X e W
+        # y_hat a partir de X e W
         return self.model * X
 
 
@@ -100,8 +105,7 @@ class LinearRegresionWithB(BaseModel):
 
     def predict(self, X):
         # usar el modelo (self.model) y predecir
-        # y hat a partir de X e W
-        # 
+        # y_hat a partir de X e W
         X_exp = np.vstack((X, np.ones(len(X)))).T
         y_hat = X_exp.dot(self.model)
         return y_hat
@@ -124,6 +128,10 @@ if __name__ == '__main__':
 
     dataset = Data('income.data.csv')
 
+    # offset = np.zeros(dataset.shape())
+    # offset[:, 1] = 3*np.ones(dataset.shape()[0])
+    # dataset.add(offset)
+
     X_train, X_test, y_train, y_test  = dataset.split(0.8)
    
     lr = LinearRegresion()
@@ -145,9 +153,12 @@ if __name__ == '__main__':
     ct_mse = mse(y_test, ct_y_hat)
 
     x_plot = np.linspace(0,10,10)
+    # --> m * x
     lr_y_plot = lr.model * x_plot
 
+    # x --> x | 1
     x_exp = np.vstack((x_plot, np.ones(len(x_plot)))).T
+    # --> m * x + b * 1
     lrb_y_plot = np.sum(lrb.model * x_exp, axis=1)
 
     plt.scatter(X_train, y_train, color='b', label='dataset')
