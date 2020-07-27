@@ -1,4 +1,5 @@
 __author__ = "Hernan Contigiani"
+__version__ = '1'
 
 import unittest
 from unittest import TestCase
