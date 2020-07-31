@@ -1,11 +1,6 @@
 '''
-1. Escribir una clase dataset que levante los datos en un numpy array estructurado
-2. La clase tiene que tener un metodo para separar los datos en 80% train y 20% test
-3. Hacer una clase que implemente regresion lineal
-4. Regresion lineal con b
-5. Prediccion
-6. Graficos
-7. ECM --> MCE+
+1. Probar con distintos polinimios el MCE y su degradación
+2. Ensayar el concepto de underfitting y overfitting
 '''
 
 import numpy as np
@@ -13,16 +8,6 @@ import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
 
-'''
-structure = [('word', np.dtype('U' + str(cls.WORD_MAX_SIZE))),
-             ('embedding', np.float32, (cls.N_FEATURES,))]
-structure = np.dtype(structure)
-# load numpy array from disk using a generator
-with open(cls.WORD_TO_VEC_MODEL_TXT_PATH, encoding="utf8") as words_embeddings_txt:
-    embeddings_gen = ((line.split()[0], line.split()[1:])
-                      for line in words_embeddings_txt)
-    embeddings = np.fromiter(embeddings_gen, structure)
-'''
 
 class Data(object):
 
