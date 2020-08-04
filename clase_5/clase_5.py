@@ -121,7 +121,7 @@ if __name__ == '__main__':
 
     for n in range(11):
         # Armamos el polinomio de grado n
-        X_train_list = [np.power(X_train, i) for i in range(0,n+1)]    
+        X_train_list = [np.power(X_train, i) for i in range(0,n+1)]
         X_train_exp = np.vstack((X_train_list)).T
 
         # Utilizo kf para dividir mi train dataset en slots
@@ -164,7 +164,7 @@ if __name__ == '__main__':
     print('El modelo de mejor polinomio es n=', best_model[2])
 
     # Recupero el modelo
-    lr = best_model[1] 
+    lr = best_model[1]
     n = best_model[2]
 
     # Creo el polinomio de test de grado n
