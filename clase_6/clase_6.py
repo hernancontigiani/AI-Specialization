@@ -1,13 +1,8 @@
 '''
-1. Simular una función sin(x) con ruido
-2. Hacer el gráfico de los datos
-3. Hacer fit con y = w1 X + w2
-4. Hacer fit con y = w1 X^2 + w2 X + w3
-5. Hacer fir para diferentes polinomios hasta 10
-6. Obtener mediante cross-validation para cada polinomio el error de validación (k-folds)
-7. Seleccionar el modelo con complejidad correcta para el dataset (usando el modelo que minimiza el validation error obtenido en 6)
-8. Obtener el ECM sobre el dataset de test.
-9. Regularizar el modelo para mejorar la generalización del modelo (probar agregando mas ruido al sin(x))
+1. Leer dataset "clase_6_dataset"
+2. Aplicar Logistic Regresion
+3. Hacer fit con y = w2 *x1 + w1 * x2 + 1
+4. Graficar el resultado
 '''
 
 import numpy as np
@@ -15,6 +10,8 @@ import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import KFold
+
+from sklearn.linear_model import LogisticRegression
 
 
 class Data(object):
@@ -205,7 +202,7 @@ def mini_batch_gradient_descent(X_train, y_train, lr=0.01, amt_epochs=100):
     return W
 
 
-def mini_batch_gradient_descent_binary(X_train, y_train, lr=0.01, amt_epochs=100):
+def mini_batch_logistic_regression(X_train, y_train, lr=0.01, amt_epochs=100):
     """
     shapes:
         X_t = nxm
@@ -213,7 +210,6 @@ def mini_batch_gradient_descent_binary(X_train, y_train, lr=0.01, amt_epochs=100
         W = mx1
     """
     b = 16
-    n = X_train.shape[0]
     m = X_train.shape[1]
 
     # initialize random weights
@@ -230,16 +226,13 @@ def mini_batch_gradient_descent_binary(X_train, y_train, lr=0.01, amt_epochs=100
             batch_X = X_train[i: end]
             batch_y = y_train[i: end]
 
-            #prediction = np.matmul(batch_X, W)  # nx1
-            #error = batch_y - prediction  # nx1
-            wx1 = np.matmul(batch_X, W)
-            wx = np.concatenate(wx1, axis=0 )
-            sigmoid = 1/(1 + np.exp(-wx))
-            error = (sigmoid - batch_y).reshape(-1, 1) # bx1
+            exponent = np.sum(np.transpose(W) * batch_X, axis=1)
+            prediction = 1/(1 + np.exp(-exponent))
+            error = prediction.reshape(-1, 1) - batch_y.reshape(-1, 1)
 
-            grad_sum = np.sum(error * batch_X, axis=0)
-            grad_mul = -2/n * grad_sum  # 1xm
+            grad_mul = (1/b) * np.matmul(batch_X.T, error)    # 1xm
             gradient = np.transpose(grad_mul).reshape(-1, 1)  # mx1
+
             W = W - (lr * gradient)
 
     return W
@@ -249,39 +242,48 @@ def predict(X, W):
     wx1 = np.matmul(X, W)
     wx = np.concatenate(wx1, axis=0 )
     sigmoid = 1/(1 + np.exp(-wx))
+    #sigmoid = [1 if x >= 0.5 else 0 for x in sigmoid]
+    sigmoid = np.where(sigmoid >= 0.5, 1.0, 0.0)
     return sigmoid
 
 
-
 if __name__ == '__main__':
-    
+
     dataset = Data('clase_6_dataset.txt')
 
     X_train, X_test, y_train, y_test  = dataset.split(0.8)
 
-    lr = 0.5
-    epochs = 100
-    W = mini_batch_gradient_descent_binary(X_train, y_train, lr=lr, amt_epochs=epochs)
-    
-    y_hat = predict(X_test, W)
+    X_train_expanded = np.vstack((X_train[:, 0], X_train[:, 1], np.ones(len(X_train)))).T
+    X_test_expanded = np.vstack((X_test[:, 0], X_test[:, 1], np.ones(len(X_test)))).T
+
+    lr = 0.001
+    epochs = 50000
+    W = mini_batch_logistic_regression(X_train_expanded, y_train.reshape(-1, 1), lr=lr, amt_epochs=epochs)
+
+
+    y_hat = predict(X_test_expanded, W)
+    print('Predicted (y_hat)')
     print(y_hat)
+    print('Real (y_test)')
     print(y_test)
 
-    # zeros = y_train < 0.5
-    # ones = y_train >= 0.5
+    # y_hat = w0 * x1 + w1 * x2 + w3(b)
+    # 0 = w0 * x1 + w1 * x2 + w3(b) = w0 * x + w1 * y + w3(b)
+    # y = ( -w0 *x - w3) / w1
+    x_regression = np.linspace(30, 100, 70)
+    y_regression = (-x_regression*W[0] - W[2])/W[1] 
 
-    # X_train_zeros = X_train[zeros]
-    # y_train_zeros = y_train[zeros]
+    zeros = y_train < 0.5
+    ones = y_train >= 0.5
 
-    # X_train_ones = X_train[ones]
-    # y_train_ones = y_train[ones]
+    X_train_zeros = X_train[zeros]
+    y_train_zeros = y_train[zeros]
 
-    # plt.scatter(X_train_zeros[:,0], X_train_zeros[:,1], marker='*')
-    # plt.scatter(X_train_ones[:,0], X_train_ones[:,1], marker='+')
-    # plt.show()
+    X_train_ones = X_train[ones]
+    y_train_ones = y_train[ones]
 
-    pass
-
-    #X = np.linspace(0, 4*np.pi, sample_size)
-    #y = np.sin(X) + np.random.normal(loc=0, scale=0.40, size=sample_size)
+    plt.scatter(X_train_zeros[:,0], X_train_zeros[:,1], marker='*')
+    plt.scatter(X_train_ones[:,0], X_train_ones[:,1], marker='+')
+    plt.plot(x_regression, y_regression, c='r')
+    plt.show()
 

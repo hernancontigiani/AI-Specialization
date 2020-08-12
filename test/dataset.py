@@ -1,8 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
-from sklearn.cluster import KMeans
-
+from sklearn.model_selection import train_test_split
 
 def vector_norm_l0(matrix):
     mask = matrix > 0
@@ -88,7 +87,6 @@ def add_random_nan(dataset, nan_size):
 
 def replace_nan_feature_mean(dataset):
     # Calculo la media de cada columna sin considerar los Nan    
-    #feature_mean = np.nanmean(dataset, axis=0)
     mean = feature_mean(dataset)
     # Reemplazo los Nan con la media
     dataset = np.where(np.isnan(dataset), mean, dataset)
@@ -125,93 +123,39 @@ def my_exponential(x, lambda_param=1.0):
     return (- np.log(1-x) / lambda_param)
 
 
-def k_means(X, n_clusters, iterations=100):
-    centroids = np.random.rand(n_clusters, X.shape[1])
-    for i in range(iterations):
-        centroids, cluster_ids = k_means_loop(X, centroids)
-    
-    return centroids, cluster_ids
+class Data(object):
 
+    def __init__(self, path):
+        self.dataset = self._build_dataset(path)
+        
+    def _build_dataset(self, path):
+        # usar numpy esctructurado
+        data = np.genfromtxt(path, delimiter=',')
+        return data
+        # np.fromiter
 
-def k_means_loop(X, centroids):
-    # find labels for rows in X based in centroids values
-    expanded_centroids = centroids[:, None]
-    distances = np.sqrt(np.sum((expanded_centroids - X) ** 2, axis=2))
-    arg_min = np.argmin(distances, axis=0)
-    # recompute centroids
-    i = 5
-    for i in range(centroids.shape[0]):
-        val = X[arg_min == i, :]
-        if val.size > 0:
-            centroids[i] = np.mean(X[arg_min == i, :], axis=0)
+    def shape(self):
+        return self.dataset.shape
 
-    return centroids, arg_min
+    def add(self, offset):
+        self.dataset += offset
 
+    def split(self, percentage):
+        # retornar train y test segun el %
+        dim = self.dataset.shape[1]
+        if dim > 2:
+            X = self.dataset[:,0:(dim-1)]
+        else:
+            X = self.dataset[:,0]
+        y = self.dataset[:,dim-1]
+        #train_test_split(X, y, test_size=(1-percentage))
+        X_train, X_test, y_train, y_test  = train_test_split(X, y, test_size=(1-percentage))
+        return X_train, X_test, y_train, y_test
 
-if __name__ == '__main__':  
-    # Definir los parámetros de entrada
-    dim = 4
-    sample = 100000
-    n_clusters = 4
-    nan_size_percent = 0.1
-
-    # Generar un dataset
-    dt = generic_dataset(dim=dim, samples=sample, n_clusters=n_clusters, k=100, plot=False)
-
-    # Eliminar el 0.1% de los datos 
-    # add_random_nan(dt, dt.size * (nan_size_percent/100.0))
-
-    # # Save array
-    # np.save('clase_2.npy', dt, allow_pickle=True)
-
-    # # Load array
-    # dt_pickle = np.load('clase_2.npy', allow_pickle=True)
-
-    # # Reemplazar NaN por la media
-    # dt = replace_nan_feature_mean(dt)
-
-    # Calcular valores de los features
-    print('Feature norm l1', feature_norm_l1(dt))
-    print('Feature mean', feature_mean(dt))
-    print('Feature std', feature_std(dt))
-
-    # Calcular la VA exponencial
-    # exponential_vectorize = np.vectorize(my_exponential)
-    # dt_exp = exponential_vectorize(dt)
-    # plt.hist(dt_exp)
-    # plt.show()
-
-    # Reducir a 2 dimensiones y plotear
-    dt2 = pca(dt, 2)
-
-    # Calcular los centros con k-means
-    kmeans_centroids, kmeans_cluster_ids = k_means(dt2, 4, 10)
-    #kmeans = KMeans(n_clusters=n_clusters, random_state=0).fit(dt2)
-
-    # Comparar y plotear
-    plt.scatter(dt2[:,0], dt2[:,1])
-    plt.scatter(kmeans_centroids[:,0], kmeans_centroids[:,1])
-    #plt.scatter(kmeans.cluster_centers_[:,0], kmeans.cluster_centers_[:,1])
-    plt.show()
-
-    '''
-    Conclusion:
-    A pesar de haber agregado ruido en el datasets (NaN reemplazados por mean)
-    se puede apreciar a simple vista 4 conjuntos dominantes y el algoritmo
-    de k-means los identifica sin problemas
-    '''
-
-    # Repetir procedimiento con un dataset cuyos centroidos estén más cerca
-    # dt = generic_dataset(dim=dim, samples=sample, n_clusters=n_clusters, k=10, plot=False)
-    # dt2 = pca(dt, 2)
-    # kmeans = KMeans(n_clusters=n_clusters, random_state=0).fit(dt2)
-    # plt.scatter(dt2[:,0], dt2[:,1])
-    # plt.scatter(kmeans.cluster_centers_[:,0], kmeans.cluster_centers_[:,1])
-    # plt.show()
-
-    '''
-    Conclusion:
-    Se puede apreciar que al acercar los centroides tenes una gran posibilidad
-    de que al menos dos nubes de puntos se junten por lo que 4 clusters
-    para separarlos es inecesario cuando los datos están tan solapados
-    '''
+class CsvData(Data):
+    def _build_dataset(self, path):
+        # usar numpy esctructurado
+        data = np.genfromtxt(path, delimiter=',')
+        data = data[1:,1:]
+        return data
+        # np.fromiter
