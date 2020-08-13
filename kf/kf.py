@@ -206,14 +206,53 @@ if __name__ == "__main__":
                 aceleracion_data[:,2]
                 ]).T
 
-    measure, R, C = get_meassure(posicion_data, velocidad_data, aceleracion_data, 1, True)
+    measure, R, C = get_meassure(posicion_data, velocidad_data, aceleracion_data, 1, False)
     error_pos_1, predicciones_1 = kalman(time, measure, R, C, real_data)
+
+    error_1 = real_data - predicciones_1
+
+    fig = plt.figure()
+    fig.suptitle('Error en la posición punto 1', fontsize=16)
+    ax = fig.add_subplot()
+    ax.plot(error_1[:, 0], c='b', label='Pos_x')
+    ax.plot(error_1[:, 1], c='r', label='Pos_y')
+    ax.plot(error_1[:, 2], c='m', label='Pos_z')
+    ax.set_ylabel("error[metros]")
+    ax.set_xlabel("ciclos kalman[1seg c/u]")
+    ax.legend()
+    plt.show()
 
     measure, R, C = get_meassure(posicion_data, velocidad_data, aceleracion_data, 2)
     error_pos_2, predicciones_2 = kalman(time, measure, R, C, real_data)
+
+    error_2 = real_data - predicciones_2
+
+    fig = plt.figure()
+    fig.suptitle('Error en la posición punto 2', fontsize=16)
+    ax = fig.add_subplot()
+    ax.plot(error_2[:, 0], c='b', label='Pos_x')
+    ax.plot(error_2[:, 1], c='r', label='Pos_y')
+    ax.plot(error_2[:, 2], c='m', label='Pos_z')
+    ax.set_ylabel("error[metros]")
+    ax.set_xlabel("ciclos kalman[1seg c/u]")
+    ax.legend()
+    plt.show()
     
     measure, R, C = get_meassure(posicion_data, velocidad_data, aceleracion_data, 3)
     error_pos_3, predicciones_3 = kalman(time, measure, R, C, real_data)
+
+    error_3 = real_data - predicciones_3
+
+    fig = plt.figure()
+    fig.suptitle('Error en la posición punto 3', fontsize=16)
+    ax = fig.add_subplot()
+    ax.plot(error_3[:, 0], c='b', label='Pos_x')
+    ax.plot(error_3[:, 1], c='r', label='Pos_y')
+    ax.plot(error_3[:, 2], c='m', label='Pos_z')
+    ax.set_ylabel("error[metros]")
+    ax.set_xlabel("ciclos kalman[1seg c/u]")
+    ax.legend()
+    plt.show()
 
     fig = plt.figure()
     fig.suptitle('Error en la posición', fontsize=16)
