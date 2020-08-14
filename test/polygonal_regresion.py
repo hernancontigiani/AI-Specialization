@@ -4,6 +4,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.model_selection import KFold
 
 import model
+from dataset import Data
 
 
 if __name__ == '__main__':
@@ -13,7 +14,8 @@ if __name__ == '__main__':
     X = np.linspace(0, 4*np.pi, sample_size)
     y = np.sin(X) + np.random.normal(loc=0, scale=0.40, size=sample_size)
 
-    X_train, X_test, y_train, y_test  = train_test_split(X, y, test_size=(0.2))
+    #X_train, X_test, y_train, y_test  = train_test_split(X, y, test_size=(0.2))
+    X_train, X_test, y_train, y_test  = Data.split_static(X, y, 0.8)
 
     # Graficar la señal
     # plt.scatter(X, y)
@@ -22,7 +24,7 @@ if __name__ == '__main__':
     mse = model.MSE()
     best_models = []
 
-    for n in range(1,11):
+    for n in range(0,11):
         # Armamos el polinomio de grado n
         X_train_list = [np.power(X_train, i) for i in range(0,n+1)]
         X_train_exp = np.vstack((X_train_list)).T

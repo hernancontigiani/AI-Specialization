@@ -142,12 +142,52 @@ class Data(object):
 
     def split(self, percentage):
         # retornar train y test segun el %
-        dim = self.dataset.ndim
-        X = self.dataset[:,0:dim]
-        y = self.dataset[:,dim]
+        dim = self.dataset.shape[1]
+        if dim > 2:
+            X = self.dataset[:,0:(dim-1)]
+        else:
+            X = self.dataset[:,0]
+        y = self.dataset[:,dim-1]
         #train_test_split(X, y, test_size=(1-percentage))
-        X_train, X_test, y_train, y_test  = train_test_split(X, y, test_size=(1-percentage))
+        #X_train, X_test, y_train, y_test  = train_test_split(X, y, test_size=(1-percentage))
+
+        # Gennero lista de indices desordenados de 0 a n
+        permuted_idxs = np.random.permutation(X.shape[0])
+
+        # Genero la lista de indices para el dataset train
+        train_idxs = permuted_idxs[0:int(percentage * X.shape[0])]
+
+        # Los que quedan son la lista de indices para el dataset test
+        test_idxs = permuted_idxs[int(percentage * X.shape[0]): X.shape[0]]
+
+        X_train = X[train_idxs]
+        X_test = X[test_idxs]
+
+        y_train = y[train_idxs]
+        y_test = y[test_idxs]
+
         return X_train, X_test, y_train, y_test
+
+    @staticmethod
+    def split_static(X, y, percentage):
+
+        # Gennero lista de indices desordenados de 0 a n
+        permuted_idxs = np.random.permutation(X.shape[0])
+
+        # Genero la lista de indices para el dataset train
+        train_idxs = permuted_idxs[0:int(percentage * X.shape[0])]
+
+        # Los que quedan son la lista de indices para el dataset test
+        test_idxs = permuted_idxs[int(percentage * X.shape[0]): X.shape[0]]
+
+        X_train = X[train_idxs]
+        X_test = X[test_idxs]
+
+        y_train = y[train_idxs]
+        y_test = y[test_idxs]
+
+        return X_train, X_test, y_train, y_test
+
 
 class CsvData(Data):
     def _build_dataset(self, path):
