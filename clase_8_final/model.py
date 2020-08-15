@@ -3,6 +3,8 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import KFold
 
+import dataset
+
 
 def k_means(X, n_clusters, iterations=100):
     centroids = np.random.rand(n_clusters, X.shape[1])
@@ -84,13 +86,16 @@ def stochastic_gradient_descent(X_train, y_train, lr=0.01, amt_epochs=100):
     return W
 
 
-def mini_batch_gradient_descent(X_train, y_train, lr=0.01, amt_epochs=100):
+def mini_batch_gradient_descent(X, y, lr=0.01, amt_epochs=100):
     """
     shapes:
         X_t = nxm
         y_t = nx1
         W = mx1
     """
+    # Separo en 4/5 el set en train y validation
+    X_train, X_val, y_train, y_val  = dataset.Data.split_static(X, y, 0.8)
+
     b = 16
     n = X_train.shape[0]
     m = X_train.shape[1]
@@ -98,12 +103,17 @@ def mini_batch_gradient_descent(X_train, y_train, lr=0.01, amt_epochs=100):
     # initialize random weights
     W = np.random.randn(m).reshape(m, 1)
 
-    for i in range(amt_epochs):
+    error_train_list = []
+    error_val_list = []
+
+    for e in range(amt_epochs):
         idx = np.random.permutation(X_train.shape[0])
         X_train = X_train[idx]
         y_train = y_train[idx]
 
         batch_size = int(len(X_train) / b)
+        error_acc = 0
+        a = 0
         for i in range(0, len(X_train), batch_size):
             end = i + batch_size if i + batch_size <= len(X_train) else len(X_train)
             batch_X = X_train[i: end]
@@ -111,14 +121,23 @@ def mini_batch_gradient_descent(X_train, y_train, lr=0.01, amt_epochs=100):
 
             prediction = np.matmul(batch_X, W)  # nx1
             error = batch_y.reshape(-1, 1) - prediction  # nx1
+            error_acc += np.sum(error) / batch_size
 
             grad_sum = np.sum(error * batch_X, axis=0)
-            grad_mul = -2/n * grad_sum  # 1xm
+            grad_mul = -2/b * grad_sum  # 1xm
             gradient = np.transpose(grad_mul).reshape(-1, 1)  # mx1
 
             W = W - (lr * gradient)
 
-    return W
+        # Calcular el error de train y val
+        # de esta epoch y almacenarlo en una lista
+        error_train = error_acc / b
+        y_hat = np.matmul(X_val, W)
+        error_val = np.square(y_hat-y_val).mean()
+        error_train_list.append(error_train)
+        error_val_list.append(error_val)
+
+    return W, error_train_list, error_val_list
 
 
 def mini_batch_logistic_regression(X_train, y_train, lr=0.01, amt_epochs=100):
@@ -199,7 +218,11 @@ class LinearRegresionGradientDescent(BaseModel):
         super().__init__()
 
     def fit(self, X, Y, lr=0.01, epochs=100):
-        self.model = self.gradient_descent(X, Y, lr, epochs)
+         W, error_train_list, error_val_list = self.gradient_descent(X, Y, lr, epochs)
+         self.model = W
+         self.error_train_list = error_train_list
+         self.error_val_list = error_val_list
+        
 
     def predict(self, X):
         # usar el modelo (self.model) y predecir
