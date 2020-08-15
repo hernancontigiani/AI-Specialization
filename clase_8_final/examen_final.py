@@ -140,14 +140,12 @@ if __name__ == "__main__":
     # para los 4 polinimios (start n=1, end n=4)
     best_model = polinomic_regresion(X_train, X_test, y_train, y_test, start_n=1, end_n=4)
 
-    # # El "n" de ese mejor modelo
-    n = best_model[2]
-
     # El mejor modelo resuelto por formula cerrada
     lr = best_model[1]
 
-    # Con el mejor "n" crear nuevamente el polinimio pero entrearlo
+    # Con el mejor "n=1" crear nuevamente el polinimio pero entrearlo
     # con mini-batch
+    n = 1
     X_train_list = [np.power(X_train, i) for i in range(0,n+1)]
     X_train_exp = np.vstack((X_train_list)).T
 
@@ -156,18 +154,23 @@ if __name__ == "__main__":
 
     model = model.LinearRegresionGradientDescent(model.mini_batch_gradient_descent)
     # NOTA: Por alguna razón el mini-batch diverge para polinomios n >= 3 :(
-    model.fit(X_train_exp, y_train, 0.001, 10)
+    model.fit(X_train_exp, y_train, 0.000001, 10)
     error_train_list = model.error_train_list
     error_val_list = model.error_val_list
 
-    # plt.plot(error_train_list, label='train error')
-    # plt.plot(error_val_list, label='val error')
-    # plt.legend()
-    # if show_plots == True:
-    #     plt.show()
+    plt.plot(error_train_list, label='train error')
+    plt.plot(error_val_list, label='val error')
+    plt.legend()
+    if show_plots == True:
+        plt.show()
 
     y_hat = model.predict(X_test_exp)
     mse_test = mse(y_test, y_hat)
+
+    # El mejor modelo resuelto por formula cerrada
+    n_best = best_model[2]
+    X_test_list = [np.power(X_test, i) for i in range(0,n_best+1)]
+    X_test_exp = np.vstack((X_test_list)).T
 
     y_hat_lr = lr.predict(X_test_exp)
     mse_test = mse(y_test, y_hat_lr)

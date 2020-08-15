@@ -113,7 +113,7 @@ def mini_batch_gradient_descent(X, y, lr=0.01, amt_epochs=100):
 
         batch_size = int(len(X_train) / b)
         error_acc = 0
-        a = 0
+
         for i in range(0, len(X_train), batch_size):
             end = i + batch_size if i + batch_size <= len(X_train) else len(X_train)
             batch_X = X_train[i: end]
