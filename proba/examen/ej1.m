@@ -70,7 +70,7 @@ xlabel ("N muestras");
 title ("Error de la media muestral")
 
 figure()
-plot(ensayos, error_varianza_muestral_vector)
+plot(ensayos, error_desvio_muestral_vector)
 ylabel ("error [%]");
 xlabel ("N muestras");
 title ("Error del desvio muestral")

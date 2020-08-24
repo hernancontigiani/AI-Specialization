@@ -5,7 +5,7 @@ rand ("seed", 123);
 % N simulaciones
 N = 200
 
-% números de fósforos (muestras)
+% cantidad de muestras
 n = 10
 
 % medicion, la media
@@ -21,6 +21,18 @@ z = norminv(1 - alfa/2)
 % el intervalo de confianza de 95% teorico es:
 mu_min_teorico = mu - z*sigma/sqrt(n);
 mu_max_teorico = mu + z*sigma/sqrt(n);
+
+mu_h0 = 45;
+z_h0 = (mu - mu_h0) / (sigma/sqrt(n))
+
+if(z >= z_h0)
+  disp(strcat(num2str(z_h0), ' <= ', num2str(z))) 
+  disp('no hay suficiente evidencia, mu_h0 cae dentro del intervalo, H0 aceptada!')
+else
+  disp(strcat(num2str(z_h0), ' > ', num2str(z)))
+  disp('hay suficiente evidencia, mu_h0 cae fuera del intervalo, H0 rechazada!')
+end
+
 
 % M ensayos de N ensayos
 M = 3;
@@ -60,15 +72,3 @@ plot(ensayos, error_intervalo_simulado_vector)
 ylabel ("error [%]");
 xlabel ("N muestras");
 title ("Error de intervalo simulado")
-
-mu_h0 = 45;
-z_h0 = (mu - mu_h0) / (sigma/sqrt(n))
-
-
-if(z >= z_h0)
-  disp(strcat(num2str(z_h0), ' <= ', num2str(z))) 
-  disp('no hay suficiente evidencia, mu_h0 cae dentro del intervalo, H0 aceptada!')
-else
-  disp(strcat(num2str(z_h0), ' > ', num2str(z)))
-  disp('hay suficiente evidencia, mu_h0 cae fuera del intervalo, H0 rechazada!')
-end
