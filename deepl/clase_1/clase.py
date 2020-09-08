@@ -27,7 +27,7 @@ def rnn_sgd(X, y, epochs, lr=0.1):
     for i in range(epochs):
         for j in range(n):
 
-            #forward_propagation()
+            #forward_propagation
             z11 = W11.T @ X[j, :]
             a11 = sigmoid(z11)
             z12 = W12.T @ X[j, :]
@@ -41,7 +41,7 @@ def rnn_sgd(X, y, epochs, lr=0.1):
             y_hat[j] = a2
             err = y[j] - y_hat[j]
 
-            # back_propagation()
+            # back_propagation
             dj_dw2 = np.array([(-2*err) * a11, (-2*err) * a12, (-2*err) * 1])
             dj_dz11 = (-2*err) * W2[0] * sigmoid(z11) * (1-sigmoid(z11))
             dj_dz12 = (-2*err) * W2[1] * sigmoid(z12) * (1-sigmoid(z12))
@@ -55,7 +55,13 @@ def rnn_sgd(X, y, epochs, lr=0.1):
         # Calcular el error cuadrático medio
         err_mse.append(mse(y, y_hat))
 
-    plt.plot(err_mse)
+    fig = plt.figure()
+    ax = fig.add_subplot()
+    ax.plot(err_mse, color='b', label=f'mse, lr={lr}')
+    ax.set_title("RNN fit")
+    ax.set_ylabel("mse")
+    ax.set_xlabel("epoch")
+    ax.legend()
     plt.show()
 
 
