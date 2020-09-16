@@ -57,7 +57,7 @@ class outputLayer(inputLayer):
         self.delta_b = (1/self.dz.shape[1]) * (np.sum(self.dz, axis=1, keepdims=True))
 
 
-def rnn_batch(X, y, epochs, lr=0.1):
+def rnn_batch(X, y, epochs, batch_size=16, lr=0.1):
 
     n = X.shape[0]
     m = X.shape[1]
@@ -66,8 +66,6 @@ def rnn_batch(X, y, epochs, lr=0.1):
     l1 = inputLayer(m, 3)
     l2 = inputLayer(3, 2)
     out = outputLayer(2, 1)
-
-    batch_size = 32
 
     #y_hat = np.zeros(n)
     err_mse = []
@@ -114,9 +112,9 @@ if __name__ == "__main__":
     dataset = np.genfromtxt(dataset_path_name, delimiter=',')
     dim = dataset.shape[1]
     if dim > 2:
-        X = dataset[:,0:(dim-1)]
+        X = dataset[:, 0:(dim-1)]
     else:
         X = dataset[:,0]
-    y = dataset[:,dim-1]
+    y = dataset[:, dim-1]
 
-    rnn_batch(X, y, 100, 0.5)
+    rnn_batch(X, y, epochs= 100, batch_size=32, lr=0.5)
