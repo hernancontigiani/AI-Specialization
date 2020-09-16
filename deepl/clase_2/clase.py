@@ -57,15 +57,15 @@ class outputLayer(inputLayer):
         self.delta_b = (1/self.dz.shape[1]) * (np.sum(self.dz, axis=1, keepdims=True))
 
 
-def rnn_batch(X, y, epochs, batch_size=16, lr=0.1):
+# Init
+l1 = inputLayer(2, 3)
+l2 = inputLayer(3, 2)
+out = outputLayer(2, 1)
+
+def rnn_batch(X, y, epochs, batch_size=16, lr=0.1, fit=True):
 
     n = X.shape[0]
     m = X.shape[1]
-
-    # Init
-    l1 = inputLayer(m, 3)
-    l2 = inputLayer(3, 2)
-    out = outputLayer(2, 1)
 
     #y_hat = np.zeros(n)
     err_mse = []
@@ -87,14 +87,15 @@ def rnn_batch(X, y, epochs, batch_size=16, lr=0.1):
             #print(err)
 
             # backward_propagation
-            out.backwardpropagation(y_batch)
-            l2.backwardpropagation(out.W, out.dz)
-            l1.backwardpropagation(l2.W, l2.dz)
+            if fit == True:
+                out.backwardpropagation(y_batch)
+                l2.backwardpropagation(out.W, out.dz)
+                l1.backwardpropagation(l2.W, l2.dz)
 
-            # update
-            out.update(lr)
-            l2.update(lr)
-            l1.update(lr)
+                # update
+                out.update(lr)
+                l2.update(lr)
+                l1.update(lr)
 
 
     fig = plt.figure()
@@ -107,7 +108,7 @@ def rnn_batch(X, y, epochs, batch_size=16, lr=0.1):
 if __name__ == "__main__":
     # Obtener el path y el nombre del dataset
     script_path = os.path.dirname(os.path.realpath(__file__))
-    dataset_path_name = os.path.join(script_path, 'train_data.csv')
+    dataset_path_name = os.path.join(script_path, 'clase_2_train_data.csv')
 
     dataset = np.genfromtxt(dataset_path_name, delimiter=',')
     dim = dataset.shape[1]
@@ -118,3 +119,13 @@ if __name__ == "__main__":
     y = dataset[:, dim-1]
 
     rnn_batch(X, y, epochs= 100, batch_size=32, lr=0.5)
+
+    dataset_path_name = os.path.join(script_path, 'clase_2_test_data.csv')
+    dataset = np.genfromtxt(dataset_path_name, delimiter=',')
+    dim = dataset.shape[1]
+    if dim > 2:
+        X = dataset[:, 0:(dim-1)]
+    else:
+        X = dataset[:,0]
+    y = dataset[:, dim-1]
+    rnn_batch(X, y, epochs= 100, batch_size=32, lr=0.5, fit=False)
