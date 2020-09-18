@@ -71,6 +71,7 @@ def rnn_batch(X, y, epochs, batch_size=16, lr=0.1, fit=True):
     err_mse = []
 
     for i in range(epochs):
+        err_accu = 0
         for j in range(0, n, batch_size):
             X_batch = X[j:(j+batch_size), :].T
             y_batch = y[j:(j+batch_size)]
@@ -82,9 +83,7 @@ def rnn_batch(X, y, epochs, batch_size=16, lr=0.1, fit=True):
 
             # Calcular y almacenar el error
             err = y_batch - out.a
-            err_j = (1/batch_size) * np.sum(np.power(err,2))
-            err_mse.append(err_j)
-            #print(err)
+            err_accu += (1/batch_size) * np.sum(np.power(err,2))
 
             # backward_propagation
             if fit == True:
@@ -97,6 +96,8 @@ def rnn_batch(X, y, epochs, batch_size=16, lr=0.1, fit=True):
                 l2.update(lr)
                 l1.update(lr)
 
+        # Apendeo el error promeido (divido por la cantidad de errores computados)
+        err_mse.append((1/batch_size) * err_accu)
 
     fig = plt.figure()
     ax = fig.add_subplot()
@@ -120,12 +121,12 @@ if __name__ == "__main__":
 
     rnn_batch(X, y, epochs= 100, batch_size=32, lr=0.5)
 
-    dataset_path_name = os.path.join(script_path, 'clase_2_test_data.csv')
-    dataset = np.genfromtxt(dataset_path_name, delimiter=',')
-    dim = dataset.shape[1]
-    if dim > 2:
-        X = dataset[:, 0:(dim-1)]
-    else:
-        X = dataset[:,0]
-    y = dataset[:, dim-1]
-    rnn_batch(X, y, epochs= 100, batch_size=32, lr=0.5, fit=False)
+    # dataset_path_name = os.path.join(script_path, 'clase_2_test_data.csv')
+    # dataset = np.genfromtxt(dataset_path_name, delimiter=',')
+    # dim = dataset.shape[1]
+    # if dim > 2:
+    #     X = dataset[:, 0:(dim-1)]
+    # else:
+    #     X = dataset[:,0]
+    # y = dataset[:, dim-1]
+    # rnn_batch(X, y, epochs= 100, batch_size=32, lr=0.5, fit=False)
